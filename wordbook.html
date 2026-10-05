@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>小词本 · 英语单词练习本</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F5F7F3'/%3E%3Cg stroke='%23BFD3BB' stroke-width='1.6'%3E%3Cline x1='5' y1='9' x2='27' y2='9'/%3E%3Cline x1='5' y1='16' x2='27' y2='16'/%3E%3Cline x1='5' y1='23' x2='27' y2='23'/%3E%3C/g%3E%3Cpath d='M11 16.5c2-1 3 1.5 5-1s3 1.5 5-1' stroke='%2317263E' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   小词本 · design tokens
+   Palette derives from one object: the Chinese school English
+   exercise book (英语作业本) — cold green-white paper, printed
+   guide lines, blue-black pen ink, teacher's red correction.
+   ============================================================ */
+:root{
+  --paper:      #F5F7F3;
+  --card:       #FFFFFF;
+  --card-2:     #FAFBF8;
+  --line:       #DFE6DA;   /* hairline rules between things   */
+  --grid:       #C2D5BE;   /* the printed four-line guide     */
+  --ink:        #17263E;   /* 蓝黑墨水                         */
+  --ink-2:      #5C6D86;
+  --ink-3:      #8D9BAC;
+  --red:        #C93B2B;   /* 红笔                             */
+  --red-soft:   #F8E8E5;
+  --green:      #2E7A55;
+  --green-soft: #E5F0E9;
+  --gold:       #C99417;
+  --gold-soft:  #FAF0D6;
+  --shadow: 0 1px 2px rgba(23,38,62,.05), 0 10px 26px -16px rgba(23,38,62,.35);
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+             "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
+             "Noto Sans SC", sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino,
+                  "Book Antiqua", Cambria, Georgia, serif;
+  --font-mono: "SF Mono", ui-monospace, "Cascadia Mono", "JetBrains Mono",
+               Consolas, "DejaVu Sans Mono", monospace;
+  --r: 14px;
+  --col: 720px;
+}
+[data-theme="dark"]{
+  --paper:      #0F1620;
+  --card:       #161F2B;
+  --card-2:     #1B2431;
+  --line:       #29343F;
+  --grid:       #3B4E57;
+  --ink:        #E8EEF4;
+  --ink-2:      #9CACBD;
+  --ink-3:      #6E7F91;
+  --red:        #EE6A54;
+  --red-soft:   #2E1E1C;
+  --green:      #57BE8A;
+  --green-soft: #14291F;
+  --gold:       #E2B44A;
+  --gold-soft:  #2B2515;
+  --shadow: 0 1px 2px rgba(0,0,0,.45), 0 14px 30px -18px rgba(0,0,0,.9);
+}
+[data-theme="dark"]{ color-scheme: dark; }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+[data-theme="dark"] body{
+  background-image:radial-gradient(120% 80% at 50% -10%, #16202C 0%, var(--paper) 60%);
+  background-attachment:fixed;
+}
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; border-radius:4px; }
+button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+h1,h2,h3{ margin:0; font-weight:600; letter-spacing:.01em; }
+p{ margin:0; }
+ul{ margin:0; padding:0; list-style:none; }
+
+/* ---------- shell ---------- */
+.wrap{ width:100%; max-width:var(--col); margin:0 auto; padding:0 20px 120px; }
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:30;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{
+  width:100%; max-width:var(--col); margin:0 auto;
+  padding:11px 20px; display:flex; align-items:center; gap:14px; min-height:58px;
+}
+.brand{ display:flex; align-items:baseline; gap:9px; min-width:0; }
+.brand-name{
+  font-family:var(--font-display); font-size:21px; font-weight:400;
+  letter-spacing:.06em; white-space:nowrap;
+}
+.brand-sub{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); white-space:nowrap;
+  padding-bottom:2px;
+}
+@media (max-width:560px){ .brand-sub{ display:none; } }
+
+.back{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:13.5px; color:var(--ink-2); padding:5px 10px 5px 4px;
+  border-radius:8px; margin-left:-4px; flex:none;
+}
+.back:hover{ color:var(--ink); background:var(--card-2); }
+.back svg{ width:15px; height:15px; }
+
+/* ---------- stats chip (top right) ---------- */
+.stats{
+  margin-left:auto; display:flex; align-items:center; gap:0; flex:none;
+  border:1px solid var(--line); border-radius:99px; background:var(--card);
+  padding:4px 4px; box-shadow:var(--shadow);
+}
+.stat{ padding:1px 12px; text-align:center; }
+.stat b{
+  display:block; font-family:var(--font-mono); font-size:14px;
+  font-weight:600; letter-spacing:-.02em; line-height:1.25;
+  font-variant-numeric:tabular-nums;
+}
+.stat i{
+  display:block; font-style:normal; font-size:9.5px; color:var(--ink-3);
+  letter-spacing:.06em; line-height:1.3;
+}
+.stat-sep{ width:1px; height:22px; background:var(--line); }
+@media (max-width:560px){
+  .stat{ padding:1px 9px; }
+  .stat b{ font-size:12.5px; }
+  .stat i{ font-size:9px; }
+}
+
+/* ---------- four-line grid (四线三格) — the signature ---------- */
+.g4{
+  position:relative;
+  height:calc(var(--u) * 3);
+  width:100%;
+  background-image:
+    linear-gradient(var(--grid), var(--grid)),
+    linear-gradient(var(--grid), var(--grid)),
+    linear-gradient(var(--grid), var(--grid)),
+    linear-gradient(var(--grid), var(--grid));
+  background-size:100% 1px, 100% 1px, 100% 1px, 100% 1px;
+  background-position:0 0, 0 var(--u), 0 calc(var(--u) * 2), 0 100%;
+  background-repeat:no-repeat;
+}
+.g4-word{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-style:italic; font-weight:400;
+  font-size:calc(var(--u) * 2); line-height:1; letter-spacing:.005em;
+  /* nudge so the glyph baseline lands exactly on the third rule */
+  transform:translateY(calc(var(--u) * .06));
+  white-space:nowrap;
+}
+.g4-word.swap{ animation:wordin .42s cubic-bezier(.2,.7,.3,1); }
+@keyframes wordin{
+  from{ opacity:0; transform:translateY(calc(var(--u) * .06 + 6px)); }
+  to  { opacity:1; transform:translateY(calc(var(--u) * .06)); }
+}
+
+/* ---------- home: hero practice card ---------- */
+.hero{
+  display:block; width:100%; text-align:left; margin-top:22px;
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:22px 24px 24px; box-shadow:var(--shadow);
+  transition:border-color .18s, transform .18s, box-shadow .18s;
+}
+.hero:hover{ border-color:var(--ink-3); transform:translateY(-1px); }
+.hero-top{ display:flex; align-items:baseline; gap:10px; }
+.hero-top h2{ font-size:19px; }
+.eyebrow{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.hero-arrow{
+  margin-left:auto; width:28px; height:28px; border-radius:50%;
+  border:1px solid var(--line); display:grid; place-items:center; flex:none;
+  color:var(--ink-2); transition:.18s;
+}
+.hero:hover .hero-arrow{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.hero-arrow svg{ width:14px; height:14px; }
+.hero-stage{ margin:20px 0 16px; padding:0 2px; }
+.hero-note{
+  font-size:13.5px; color:var(--ink-2); line-height:1.65;
+  border-top:1px solid var(--line); padding-top:14px;
+}
+
+/* ---------- secondary cards ---------- */
+.cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
+@media (max-width:620px){ .cards{ grid-template-columns:1fr; } }
+.card{
+  display:block; text-align:left; width:100%;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+  padding:15px 16px 16px; box-shadow:var(--shadow);
+  transition:border-color .18s, transform .18s;
+}
+.card:hover{ border-color:var(--ink-3); transform:translateY(-1px); }
+.card h3{ font-size:15.5px; display:flex; align-items:center; gap:8px; }
+.card-title-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.card-count{
+  font-family:var(--font-mono); font-size:16px; font-weight:600;
+  font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+}
+.card-count small{ font-size:9.5px; font-weight:400; color:var(--ink-3); letter-spacing:.08em; margin-left:3px; }
+.card p{ font-size:12.5px; color:var(--ink-2); margin-top:8px; line-height:1.55; }
+.tick{
+  width:9px; height:9px; border-radius:2px; flex:none; display:inline-block;
+}
+.tick.g{ background:var(--green); }
+.tick.r{ background:var(--red); }
+.tick.y{ background:var(--gold); }
+
+/* ---------- generic view bits ---------- */
+.view-head{ padding:26px 0 18px; }
+.view-head h1{ font-size:25px; font-family:var(--font-display); font-weight:400; letter-spacing:.02em; }
+.view-head .eyebrow{ display:block; margin-bottom:6px; }
+.view-head p{ font-size:13.5px; color:var(--ink-2); margin-top:8px; }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  padding:10px 18px; border-radius:10px; font-size:14px; font-weight:500;
+  border:1px solid var(--line); background:var(--card); color:var(--ink);
+  transition:.16s; white-space:nowrap;
+}
+.btn:hover{ border-color:var(--ink-3); background:var(--card-2); }
+.btn.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.btn.primary:hover{ opacity:.86; }
+.btn.danger{ color:var(--red); border-color:var(--line); }
+.btn.danger:hover{ background:var(--red-soft); border-color:var(--red); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; }
+.btn svg{ width:15px; height:15px; flex:none; }
+.btn.sm{ padding:7px 13px; font-size:13px; border-radius:9px; }
+.btn-row{ display:flex; flex-wrap:wrap; gap:9px; }
+
+.panel{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+  padding:18px 20px; box-shadow:var(--shadow);
+}
+.empty{
+  border:1px dashed var(--line); border-radius:var(--r); padding:36px 24px;
+  text-align:center; color:var(--ink-2); font-size:13.5px; line-height:1.7;
+}
+.empty b{ display:block; color:var(--ink); font-size:15px; font-weight:600; margin-bottom:6px; }
+
+/* ---------- sense table (释义对照) ----------
+   One row = one index. POS[i] / Chinesesense[i] / Englishsense[i] / freq[i]
+   sit together, so the reader can see the alignment the lists promise. */
+.sense-table{ border-top:1px solid var(--line); }
+.srow{
+  display:grid; grid-template-columns:1fr; gap:0;
+  padding:14px 0; border-bottom:1px solid var(--line);
+}
+.srow.multi{ grid-template-columns:22px 1fr; gap:0 10px; }
+.sidx{
+  font-family:var(--font-mono); font-size:10px; line-height:1;
+  color:var(--ink-3); padding-top:6px; letter-spacing:.06em;
+  font-variant-numeric:tabular-nums;
+}
+.sbody{ display:grid; grid-template-columns:1.02fr 1fr; gap:4px 22px; min-width:0; }
+.sbody.one{ grid-template-columns:1fr; }
+.shead{ grid-column:1 / -1; display:flex; align-items:baseline; flex-wrap:wrap; gap:3px 10px; margin-bottom:3px; }
+.poschip{
+  font-family:var(--font-mono); font-size:10px; font-weight:600; line-height:1.55;
+  color:var(--red); letter-spacing:.03em;
+  background:var(--red-soft); border:1px solid color-mix(in srgb, var(--red) 28%, transparent);
+  border-radius:5px; padding:2px 7px;
+}
+.freq{
+  margin-left:auto; font-size:11px; line-height:1.7;
+  color:var(--ink-3); text-align:right;
+}
+.freq b{ font-family:var(--font-mono); font-size:10px; font-weight:600; color:var(--ink-2); }
+.sc{ font-weight:600; font-size:14px; line-height:1.55; }
+.se{ font-size:13px; color:var(--ink-2); line-height:1.6; }
+.sx{ grid-column:1 / -1; font-size:12.5px; color:var(--ink-3); line-height:1.6;
+  font-style:italic; margin-top:2px; }
+@media (max-width:600px){
+  .srow{ padding:13px 0; }
+  .sbody,.sbody.one{ grid-template-columns:1fr; gap:3px; }
+  .se{ font-size:12.5px; }
+  .sx{ font-style:normal; padding-left:10px; border-left:2px solid var(--line); }
+}
+.rank-row{
+  display:flex; flex-wrap:wrap; gap:6px; align-items:center;
+  padding:13px 0 2px;
+}
+.rank-label{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); margin-right:2px;
+}
+.tag{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:.03em;
+  padding:3px 8px; border-radius:5px; border:1px solid var(--line);
+  color:var(--ink-2); background:var(--card-2); white-space:nowrap;
+}
+.tag.hot{ color:var(--red); border-color:currentColor; background:var(--red-soft); }
+.detail-title{
+  font-family:var(--font-display); font-style:italic; font-size:26px;
+  line-height:1.2; margin-bottom:4px;
+}
+.detail-head{ padding-bottom:14px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.detail-head .eyebrow{ margin:0; }
+
+/* ---------- quiz ---------- */
+.progress{ height:3px; background:var(--line); border-radius:99px; overflow:hidden; margin:4px 0 0; }
+.progress i{ display:block; height:100%; background:var(--red); border-radius:99px;
+  transition:width .35s cubic-bezier(.2,.7,.3,1); }
+.qhead{ display:flex; align-items:center; gap:10px; padding:16px 0 8px; }
+.qcount{
+  font-family:var(--font-mono); font-size:12px; color:var(--ink-2);
+  letter-spacing:.06em; font-variant-numeric:tabular-nums;
+}
+.qcount b{ color:var(--ink); font-weight:600; }
+
+.word-stage{
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:34px 24px 22px; box-shadow:var(--shadow); margin-top:14px;
+  position:relative; overflow:hidden;
+}
+.word-stage .g4{ --u:clamp(19px,5.4vw,27px); padding:0; }
+.stage-tools{ display:flex; justify-content:center; margin-top:24px; }
+.fav{
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:13px; color:var(--ink-2); padding:8px 16px; border-radius:99px;
+  border:1px solid var(--line); background:var(--card-2); transition:.16s;
+}
+.fav:hover{ border-color:var(--gold); color:var(--gold); }
+.fav svg{ width:15px; height:15px; }
+.fav.on{ color:var(--gold); border-color:var(--gold); background:var(--gold-soft); }
+.fav.on svg path{ fill:currentColor; }
+
+.opts{ display:grid; gap:9px; margin-top:16px; }
+.opt{
+  display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left;
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:13px 15px; box-shadow:var(--shadow);
+  transition:border-color .16s, background .16s, opacity .2s;
+}
+.opt:not(:disabled):hover{ border-color:var(--ink-3); }
+.opt:disabled{ cursor:default; }
+.opt .mk{
+  width:25px; height:25px; flex:none; border-radius:7px;
+  border:1px solid var(--line); display:grid; place-items:center;
+  font-family:var(--font-mono); font-size:12px; color:var(--ink-2);
+  transition:.16s; margin-top:1px;
+}
+.opt:not(:disabled):hover .mk{ border-color:var(--ink-3); color:var(--ink); }
+.opt-body{ flex:1; min-width:0; display:grid; gap:2px; }
+.opt-body .opt-text{ font-size:14.5px; line-height:1.6; color:var(--ink); }
+.opt.correct{ border-color:var(--green); background:var(--green-soft); }
+.opt.correct .mk{ border-color:var(--green); background:var(--green); }
+.opt.wrong{ border-color:var(--red); background:var(--red-soft); }
+.opt.wrong .mk{ border-color:var(--red); background:var(--red); }
+.opt.faded{ opacity:.42; }
+.mk svg{ width:15px; height:15px; }
+.pen-mark path{
+  fill:none; stroke:#fff; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round;
+  stroke-dasharray:60; stroke-dashoffset:60;
+  animation:draw .32s cubic-bezier(.6,.1,.3,1) forwards;
+}
+@keyframes draw{ to{ stroke-dashoffset:0; } }
+
+.result-panel{ margin-top:16px; animation:rise .3s cubic-bezier(.2,.7,.3,1); }
+@keyframes rise{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:none; } }
+.verdict{
+  display:flex; align-items:center; gap:9px; font-size:14.5px; font-weight:600;
+  padding-bottom:13px;
+}
+.verdict svg{ width:16px; height:16px; flex:none; }
+.verdict.bad{ color:var(--red); }
+.verdict.good{ color:var(--green); }
+/* The payoff for a right answer: the 中文 you matched, and the 英文 definition
+   it actually stands for. The green rule is what makes them read as a pair. */
+.pair{ border-left:2px solid var(--green); padding:2px 0 2px 13px; }
+.pair-cn{ font-size:13px; line-height:1.6; color:var(--ink-2); }
+.pair-en{ font-size:15px; line-height:1.66; color:var(--ink); margin-top:4px; }
+@media (prefers-reduced-motion:reduce){
+  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+
+/* ---------- setup ---------- */
+.setup{ padding-top:6px; }
+.field{ margin-top:20px; }
+.field label{
+  display:block; font-family:var(--font-mono); font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
+  margin-bottom:8px;
+}
+select{
+  appearance:none; -webkit-appearance:none; width:100%; max-width:280px;
+  font:inherit; font-size:14.5px; color:var(--ink); background:var(--card);
+  border:1px solid var(--line); border-radius:11px; padding:12px 40px 12px 14px;
+  box-shadow:var(--shadow); cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D9BAC' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 13px center; background-size:15px;
+}
+select option:disabled{ color:var(--ink-3); }
+.hint{ font-size:12.5px; color:var(--ink-3); margin-top:9px; }
+code{
+  font-family:var(--font-mono); font-size:11.5px; color:var(--ink-2);
+  background:var(--card-2); border:1px solid var(--line);
+  border-radius:4px; padding:1px 5px; white-space:nowrap;
+}
+
+/* ---------- word list ---------- */
+.list-tools{ display:flex; gap:9px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+.search{
+  flex:1; min-width:170px; font:inherit; font-size:14px; color:var(--ink);
+  background:var(--card); border:1px solid var(--line); border-radius:10px;
+  padding:10px 13px; box-shadow:var(--shadow);
+}
+.search::placeholder{ color:var(--ink-3); }
+.wlist{ border:1px solid var(--line); border-radius:var(--r); background:var(--card);
+  overflow:hidden; box-shadow:var(--shadow); }
+.witem{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:12px 16px; border-bottom:1px solid var(--line); transition:background .14s;
+}
+.witem:last-child{ border-bottom:0; }
+.witem:hover{ background:var(--card-2); }
+.witem-word{
+  font-family:var(--font-display); font-style:italic; font-size:18px;
+  min-width:118px; flex:none;
+}
+.witem-def{
+  font-size:12.5px; color:var(--ink-2); flex:1; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.witem-x{
+  flex:none; width:26px; height:26px; border-radius:7px; display:grid;
+  place-items:center; color:var(--ink-3); font-size:15px; line-height:1;
+}
+.witem-x:hover{ background:var(--red-soft); color:var(--red); }
+@media (max-width:520px){
+  .witem{ flex-wrap:wrap; gap:2px 10px; }
+  .witem-word{ min-width:0; }
+  .witem-def{ flex-basis:100%; order:3; }
+}
+.count-note{
+  font-family:var(--font-mono); font-size:11px; color:var(--ink-3);
+  letter-spacing:.05em; padding:6px 0 12px;
+}
+
+/* ---------- import ---------- */
+.io{ display:grid; gap:12px; margin-top:14px; }
+.drop{
+  border:1px dashed var(--line); border-radius:12px; padding:24px 18px;
+  text-align:center; color:var(--ink-2); font-size:13px; cursor:pointer;
+  transition:.16s; background:var(--card-2);
+}
+.drop:hover,.drop.over{ border-color:var(--ink-3); color:var(--ink); background:var(--card); }
+.drop b{ display:block; color:var(--ink); font-size:14px; margin-bottom:4px; font-weight:600; }
+textarea{
+  width:100%; font-family:var(--font-mono); font-size:12px; line-height:1.6;
+  color:var(--ink); background:var(--card); border:1px solid var(--line);
+  border-radius:11px; padding:12px 13px; resize:vertical; min-height:104px;
+}
+textarea::placeholder{ color:var(--ink-3); }
+details.adv summary{
+  cursor:pointer; font-size:13px; color:var(--ink-2); padding:4px 0; list-style:none;
+}
+details.adv summary::-webkit-details-marker{ display:none; }
+details.adv summary::before{ content:"＋ "; font-family:var(--font-mono); color:var(--ink-3); }
+details.adv[open] summary::before{ content:"－ "; }
+
+/* ---------- settings sheet (bottom right) ---------- */
+.fab{
+  position:fixed; right:22px; bottom:22px; z-index:40;
+  width:50px; height:50px; border-radius:50%;
+  background:var(--ink); color:var(--paper);
+  display:grid; place-items:center; box-shadow:0 6px 22px -6px rgba(23,38,62,.6);
+  transition:transform .22s cubic-bezier(.2,.7,.3,1), opacity .2s;
+}
+.fab:hover{ transform:rotate(45deg); }
+.fab svg{ width:21px; height:21px; }
+.fab.hide{ opacity:0; pointer-events:none; transform:scale(.7); }
+[data-theme="dark"] .fab{ box-shadow:0 6px 22px -6px rgba(0,0,0,.9); }
+
+.scrim{
+  position:fixed; inset:0; z-index:45; background:rgba(15,22,32,.32);
+  opacity:0; pointer-events:none; transition:opacity .24s;
+  backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+}
+.scrim.on{ opacity:1; pointer-events:auto; }
+[data-theme="dark"] .scrim{ background:rgba(0,0,0,.55); }
+
+.sheet{
+  position:fixed; right:22px; bottom:22px; z-index:50;
+  width:min(352px, calc(100vw - 32px));
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  box-shadow:0 20px 50px -18px rgba(23,38,62,.5);
+  transform:translateY(14px) scale(.97); opacity:0; pointer-events:none;
+  transform-origin:bottom right;
+  transition:transform .26s cubic-bezier(.2,.7,.3,1), opacity .2s;
+  overflow:hidden;
+}
+.sheet.on{ transform:none; opacity:1; pointer-events:auto; }
+[data-theme="dark"] .sheet{ box-shadow:0 20px 50px -18px rgba(0,0,0,.95); }
+@media (max-width:520px){
+  .sheet{ right:16px; bottom:16px; width:calc(100vw - 32px); }
+  .fab{ right:16px; bottom:16px; }
+}
+.sheet-head{
+  padding:15px 18px 12px; border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:9px;
+}
+.sheet-head h2{ font-size:15px; }
+.sheet-head .eyebrow{ margin-left:auto; }
+.srow-set{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 18px; border-bottom:1px solid var(--line); transition:background .14s;
+}
+.srow-set:last-child{ border-bottom:0; }
+button.srow-set:hover{ background:var(--card-2); }
+.srow-set .lbl{ flex:1; min-width:0; }
+.srow-set .lbl b{ display:block; font-size:13.5px; font-weight:500; }
+.srow-set .lbl span{ display:block; font-size:11.5px; color:var(--ink-3); margin-top:1px; }
+.srow-set.danger .lbl b{ color:var(--red); }
+.srow-set .chev{ color:var(--ink-3); font-family:var(--font-mono); font-size:13px; }
+
+.switch{
+  width:42px; height:24px; border-radius:99px; background:var(--line);
+  position:relative; flex:none; transition:background .2s;
+}
+.switch::after{
+  content:""; position:absolute; top:3px; left:3px; width:18px; height:18px;
+  border-radius:50%; background:var(--card); box-shadow:0 1px 3px rgba(0,0,0,.25);
+  transition:transform .22s cubic-bezier(.2,.7,.3,1);
+}
+.switch.on{ background:var(--ink); }
+.switch.on::after{ transform:translateX(18px); }
+
+/* ---------- modal ---------- */
+.modal{
+  position:fixed; inset:0; z-index:60; display:grid; place-items:center;
+  padding:22px; opacity:0; pointer-events:none; transition:opacity .2s;
+  background:rgba(15,22,32,.4); backdrop-filter:blur(3px);
+}
+[data-theme="dark"] .modal{ background:rgba(0,0,0,.6); }
+.modal.on{ opacity:1; pointer-events:auto; }
+.modal-box{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:22px; width:100%; max-width:352px; box-shadow:0 20px 50px -18px rgba(23,38,62,.5);
+  transform:scale(.97); transition:transform .2s cubic-bezier(.2,.7,.3,1);
+}
+.modal.on .modal-box{ transform:none; }
+.modal-box h3{ font-size:16px; margin-bottom:8px; }
+.modal-box p{ font-size:13.5px; color:var(--ink-2); line-height:1.65; }
+.modal-actions{ display:flex; gap:9px; justify-content:flex-end; margin-top:20px; }
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; left:50%; top:18px; z-index:70;
+  transform:translate(-50%,-24px); opacity:0; pointer-events:none;
+  background:var(--ink); color:var(--paper);
+  padding:10px 20px; border-radius:99px; font-size:14px; font-weight:500;
+  box-shadow:0 10px 30px -10px rgba(23,38,62,.7); white-space:nowrap;
+  transition:transform .26s cubic-bezier(.2,.7,.3,1), opacity .2s;
+  display:flex; align-items:center; gap:8px;
+}
+.toast.on{ transform:translate(-50%,0); opacity:1; }
+.toast svg{ width:16px; height:16px; }
+
+/* ---------- done ---------- */
+.score{
+  display:flex; align-items:baseline; gap:10px; margin:2px 0 4px;
+}
+.score-num{
+  font-family:var(--font-display); font-size:64px; line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.score-of{ font-family:var(--font-mono); font-size:13px; color:var(--ink-3); letter-spacing:.06em; }
+.bar{ height:5px; background:var(--line); border-radius:99px; overflow:hidden; margin:18px 0 6px; }
+.bar i{ display:block; height:100%; background:var(--green); border-radius:99px; }
+
+/* ---------- contact ---------- */
+.contact-mail{
+  font-family:var(--font-display); font-size:clamp(23px,6.4vw,36px);
+  line-height:1.25; letter-spacing:.01em; word-break:break-all;
+  display:block; margin:6px 0 0;
+}
+.greet{
+  font-family:var(--font-display); font-size:clamp(28px,9vw,44px);
+  line-height:1.2; margin:0 0 22px;
+}
+.rule-block{ border-top:1px solid var(--line); padding-top:20px; margin-top:22px; }
+.rule-block dl{ margin:0; display:grid; gap:12px; }
+.rule-block dt{
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:3px;
+}
+.rule-block dd{ margin:0; font-size:13.5px; color:var(--ink-2); line-height:1.65; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in" id="topbar"></div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<button class="fab" id="fab" aria-label="设置" aria-haspopup="dialog">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3.1"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+</button>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="sheet" id="sheet" role="dialog" aria-label="设置" aria-modal="true"></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ==========================================================================
+   小词本 — a vocabulary practice book for Chinese school students
+   Single file. No dependencies. Works offline.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------
+   1 · Default word bank — 50 entries.
+   Contract: POS / Chinesesense / Englishsense / example are index-aligned.
+   Only `word` and `Englishsense` are required.
+   --------------------------------------------------------------- */
+const DEFAULT_WORDS = [
+{ word:"pen",
+  Chinesesense:["N 钢笔；笔","V 写，书写","N 栏；棚；圈"],
+  Englishsense:["a long thin object used for writing with ink","to write something with a pen","a small area surrounded by a fence, for keeping animals"],
+  example:["She signed her name with a black pen.","He penned a short letter to his teacher.","The sheep are kept in a pen behind the barn."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS","GRE"] },
+
+{ word:"book",
+  Chinesesense:["N 书；书籍","V 预订，预定"],
+  Englishsense:["a set of printed pages held together in a cover","to arrange to have or use something at a future time"],
+  example:["I borrowed three books from the school library.","We booked a table for six at the restaurant."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"light",
+  Chinesesense:["N 光；光线；灯","Adj 轻的；轻便的","V 点燃；照亮"],
+  Englishsense:["the brightness that lets us see things","not heavy; easy to carry or move","to make something start to burn, or to give light to something"],
+  example:["Turn on the light — it's getting dark.","My schoolbag is light because I left my books at school.","She lit a candle and put it on the table."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"spring",
+  Chinesesense:["N 春天，春季","N 泉；泉水","N 弹簧；弹力"],
+  Englishsense:["the season between winter and summer","a place where water flows naturally out of the ground","a piece of metal that bends and returns to its shape"],
+  example:["The flowers come out in spring.","We drank cold water from a mountain spring.","The spring in this pen is broken."],
+  rank:["junior","highschool","cet4","cet6","IELTS","GRE"] },
+
+{ word:"bank",
+  Chinesesense:["N 银行","N 河岸；堤岸"],
+  Englishsense:["a place where people keep their money","the land along the side of a river"],
+  example:["He put his pocket money in the bank.","We sat on the bank and watched the boats go by."],
+  rank:["primary","junior","highschool","cet4","IELTS"] },
+
+{ word:"right",
+  Chinesesense:["Adj 正确的；对的","N 权利","Adv 向右；正好"],
+  Englishsense:["correct; true","something that a person is allowed to have or do","towards the side that is opposite to the left"],
+  example:["You got the right answer.","Every child has the right to go to school.","Turn right at the second crossing."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"watch",
+  Chinesesense:["V 观看；注视","N 手表"],
+  Englishsense:["to look at something for a period of time","a small clock that you wear on your wrist"],
+  example:["We watched a film about the sea.","My watch says it is already nine o'clock."],
+  rank:["primary","junior","highschool","cet4"] },
+
+{ word:"hard",
+  Chinesesense:["Adj 困难的；艰难的","Adj 硬的；坚固的","Adv 努力地；费力地"],
+  Englishsense:["difficult to do or understand","firm and solid; not easy to bend or break","using a lot of effort"],
+  example:["This maths problem is really hard.","The ground was hard and dry after the long summer.","She works hard at her English."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"well",
+  Chinesesense:["Adv 好地；令人满意地","N 井；水井"],
+  Englishsense:["in a good or satisfactory way","a deep hole in the ground from which people take water"],
+  example:["He did very well in the exam.","Villagers used to get water from the old well."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"match",
+  Chinesesense:["N 比赛；竞赛","V 相配；匹配","N 火柴"],
+  Englishsense:["a sports competition between two people or teams","to look good together, or to go together well","a short thin stick that makes fire when you rub it"],
+  example:["Our class won the football match.","Your shoes don't match your trousers.","He lit the candle with a match."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"train",
+  Chinesesense:["N 火车；列车","V 训练；培养"],
+  Englishsense:["a line of railway carriages pulled by an engine","to teach someone, or to practise a skill regularly"],
+  example:["The train to Beijing leaves at eight.","The coach trains the players twice a week."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"leave",
+  Chinesesense:["V 离开；出发","V 留下；忘了带","N 假期；休假"],
+  Englishsense:["to go away from a place or a person","to let something stay where it is, often by mistake","time when you are allowed to be away from work or school"],
+  example:["We leave for Shanghai on Monday.","I left my umbrella on the bus.","He asked for three days' leave."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"fair",
+  Chinesesense:["Adj 公平的；公正的","N 集市；展览会"],
+  Englishsense:["treating everyone in the same way","an outdoor event with stalls, games and amusements"],
+  example:["The rules must be fair to everyone.","We bought some cakes at the school fair."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"kind",
+  Chinesesense:["Adj 友好的；善良的","N 种类；类型"],
+  Englishsense:["caring about other people and wanting to help them","a group of things or people of the same type"],
+  example:["It was very kind of you to help me.","This kind of flower opens only at night."],
+  rank:["primary","junior","highschool","cet4"] },
+
+{ word:"paper",
+  Chinesesense:["N 纸；纸张","N 论文；试卷","N 报纸"],
+  Englishsense:["thin material used for writing, printing or wrapping","a piece of writing on a subject, or a set of exam questions","a newspaper"],
+  example:["Write your name at the top of the paper.","She is reading a paper on climate change.","My father reads the paper every morning."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"class",
+  Chinesesense:["N 班级；全班学生","N 课；课程","N 等级；阶级"],
+  Englishsense:["a group of students who are taught together","a period of time when you are taught","a group of people of the same level or rank"],
+  example:["Our class has forty-two students.","We have an English class on Monday morning.","He travelled in first class."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"face",
+  Chinesesense:["N 脸；面孔","V 面对；面临","N 表面"],
+  Englishsense:["the front part of the head","to deal with something difficult","the front or outer surface of something"],
+  example:["She washed her face with cold water.","We must face the problem together.","The face of the clock is broken."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"hand",
+  Chinesesense:["N 手","V 递给；传递","N 指针"],
+  Englishsense:["the part of the body at the end of the arm","to pass something to someone with your hand","a long thin part that points to the numbers on a clock"],
+  example:["Raise your hand if you know the answer.","Please hand the book to your classmate.","The minute hand moved slowly round."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"order",
+  Chinesesense:["N 顺序；次序","V 命令；订购","N 订单"],
+  Englishsense:["the way in which things are arranged one after another","to tell someone to do something, or to ask for goods","a request for goods to be supplied"],
+  example:["Please put the words in alphabetical order.","The teacher ordered the students to be quiet.","The shop has received your order."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"point",
+  Chinesesense:["N 点；观点；要点","V 指；指向","N 分数"],
+  Englishsense:["an idea or fact that someone says; a particular spot","to show something with your finger","a unit used for scoring in a game"],
+  example:["You have made a very good point.","She pointed at the map on the wall.","Our team scored ten points."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"race",
+  Chinesesense:["N 赛跑；比赛","N 种族；人种"],
+  Englishsense:["a competition to see who is the fastest","a group of people with the same physical features"],
+  example:["He came first in the 100-metre race.","People of all races study in our school."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"sound",
+  Chinesesense:["N 声音；响声","V 听起来；似乎","Adj 健全的；完好的"],
+  Englishsense:["something that you can hear","to give a certain impression when heard","in good condition; healthy"],
+  example:["We heard a strange sound outside the door.","Your plan sounds great.","The bridge is still sound after the flood."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"state",
+  Chinesesense:["N 状态；情形","N 州；国家","V 陈述；声明"],
+  Englishsense:["the condition that someone or something is in","a country, or an area of a country with its own government","to say something formally and clearly"],
+  example:["The old house is in a poor state.","Texas is one of the largest states in the USA.","Please state your name and age."],
+  rank:["highschool","cet4","cet6","IELTS","GRE"] },
+
+{ word:"story",
+  Chinesesense:["N 故事；小说","N 楼层"],
+  Englishsense:["a description of events, real or imagined","a level of a building"],
+  example:["My grandmother told us a story about a fox.","They live in a house of three stories."],
+  rank:["primary","junior","highschool","cet4"] },
+
+{ word:"term",
+  Chinesesense:["N 学期","N 术语；词语","N 条款；条件"],
+  Englishsense:["one of the periods that the school year is divided into","a word or phrase used in a particular subject","a condition in a contract or agreement"],
+  example:["We have our exams at the end of the term.","This is a difficult medical term.","Please read the terms of the agreement."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"tie",
+  Chinesesense:["V 系；绑；拴","N 领带","N 平局；不分胜负"],
+  Englishsense:["to fasten something with string or rope","a long narrow piece of cloth worn round the neck","a result in which two sides have the same score"],
+  example:["He tied the horse to a tree.","My father wears a blue tie to work.","The game ended in a tie."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"wave",
+  Chinesesense:["N 波浪；海浪","V 挥手；招手","N 波（声波、电波）"],
+  Englishsense:["a raised line of water moving on the surface of the sea","to move your hand from side to side to greet someone","a movement of energy, such as sound or radio waves"],
+  example:["The waves were high after the storm.","She waved to us from the window.","Sound waves travel through the air."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"board",
+  Chinesesense:["N 板；木板；黑板","V 上（车、船、飞机）","N 董事会；委员会"],
+  Englishsense:["a flat piece of wood or other material used for a purpose","to get on a plane, ship, train or bus","a group of people who manage a company or a school"],
+  example:["The teacher wrote the new words on the board.","Passengers should board the plane in ten minutes.","The school board meets every month."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"capital",
+  Chinesesense:["N 首都；省会","N 资本；资金","Adj 大写的"],
+  Englishsense:["the most important city of a country or region","money used to start or run a business","written as a large letter"],
+  example:["Beijing is the capital of China.","They need more capital to open a second shop.","Begin every sentence with a capital letter."],
+  rank:["junior","highschool","cet4","cet6","IELTS","GRE"] },
+
+{ word:"change",
+  Chinesesense:["V 改变；更换","N 零钱；找零"],
+  Englishsense:["to become different, or to make something different","the money you get back when you pay more than the price"],
+  example:["The leaves change colour in autumn.","Here is your change, two yuan fifty."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"cover",
+  Chinesesense:["V 覆盖；遮盖","N 封面；盖子","V 包括；涉及"],
+  Englishsense:["to put something over another thing","the outside of a book or a container","to include or deal with a subject"],
+  example:["Snow covered the whole village.","The cover of the book is torn.","The lesson covers three new grammar points."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"date",
+  Chinesesense:["N 日期；日子","N 约会","N 枣；椰枣"],
+  Englishsense:["a particular day of the month or year","an arrangement to meet someone at a certain time","a sweet brown fruit that grows on a palm tree"],
+  example:["What is the date today?","He has a date with his friend on Sunday.","We ate dates and drank tea after dinner."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"deal",
+  Chinesesense:["V 处理；应付（deal with）","N 交易；协议","N 大量（a great deal of）"],
+  Englishsense:["to take action in order to solve a problem","an agreement, especially in business","a large amount of something"],
+  example:["We must deal with this problem at once.","The two companies made a deal.","She spent a great deal of time on her homework."],
+  rank:["junior","highschool","cet4","cet6"] },
+
+{ word:"drop",
+  Chinesesense:["V 落下；掉下","N 水滴；一滴","V 下降；减少"],
+  Englishsense:["to fall, or to let something fall","a very small amount of liquid","to become lower in amount or level"],
+  example:["Don't drop the glass.","A drop of rain fell on my nose.","The temperature dropped at night."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"fire",
+  Chinesesense:["N 火；火灾","V 解雇；开除","V 点燃；激发"],
+  Englishsense:["the flames, light and heat produced by burning","to make someone leave their job","to make something start burning, or to fill someone with strong feeling"],
+  example:["The fire kept us warm all night.","The manager fired him for being late.","Her speech fired the students with hope."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"free",
+  Chinesesense:["Adj 自由的；不受约束的","Adj 免费的","Adj 空闲的；有空的"],
+  Englishsense:["able to do what you want","costing no money","not busy; available"],
+  example:["You are free to choose your own books.","The concert is free for students.","Are you free this afternoon?"],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"ground",
+  Chinesesense:["N 地面；土地","N 理由；根据","N 场地；操场"],
+  Englishsense:["the solid surface of the earth","a good reason for something","an area of land used for a purpose"],
+  example:["The children sat on the ground.","There is no ground for such a worry.","The school has two football grounds."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"head",
+  Chinesesense:["N 头；头部","N 领导；负责人","V 前往；朝……行进"],
+  Englishsense:["the part of the body above the neck","the person in charge of a group","to move in a certain direction"],
+  example:["He hurt his head in the game.","She is the head of our English department.","We headed for the station."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"interest",
+  Chinesesense:["N 兴趣；爱好","N 利息","V 使感兴趣"],
+  Englishsense:["the feeling of wanting to know more about something","the money paid for the use of money","to make someone want to know more about something"],
+  example:["He has a great interest in space.","The bank pays interest on your savings.","The story interested the whole class."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"last",
+  Chinesesense:["Adj 最后的；上一个的","V 持续；延续","Adv 上一次；最后"],
+  Englishsense:["coming after all others, or most recent","to continue for a period of time","most recently"],
+  example:["This is the last question.","The meeting lasted two hours.","I saw her last week."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"lie",
+  Chinesesense:["V 躺；平放","V 撒谎；说谎","N 谎言"],
+  Englishsense:["to be in a flat position on a surface","to say something that is not true","a statement that is not true"],
+  example:["He likes to lie on the grass and read.","You must not lie to your parents.","That was a lie, and everyone knew it."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"mark",
+  Chinesesense:["N 分数；成绩","V 标记；做记号","N 记号；痕迹"],
+  Englishsense:["a number or letter showing how well you did","to write or draw a sign on something","a spot or line that spoils the appearance of something"],
+  example:["She got full marks in the test.","Mark the right answer with a tick.","There is a mark on your new shirt."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"matter",
+  Chinesesense:["N 事情；问题","V 要紧；有关系","N 物质"],
+  Englishsense:["a subject or situation that you must think about","to be important","the physical substance that everything is made of"],
+  example:["This is a matter for the whole class.","It doesn't matter if you are a little late.","Everything around us is made of matter."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"miss",
+  Chinesesense:["V 想念；思念","V 错过；未赶上","N 小姐（对未婚女性的称呼）"],
+  Englishsense:["to feel sad because someone or something is not there","to be too late for a bus, train, chance, etc.","a title used before the name of an unmarried woman"],
+  example:["I miss my friends when I am away.","Hurry up, or we will miss the bus.","Miss Li teaches us English."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"park",
+  Chinesesense:["N 公园","V 停放（车辆）"],
+  Englishsense:["a public area with grass and trees where people walk and play","to leave a vehicle somewhere for a time"],
+  example:["We play football in the park on Sundays.","You can't park your bike here."],
+  rank:["primary","junior","highschool","cet4"] },
+
+{ word:"present",
+  Chinesesense:["N 礼物","Adj 现在的；目前的","V 呈递；赠送；呈现"],
+  Englishsense:["something you give to someone as a gift","happening or existing now","to give something to someone formally"],
+  example:["She gave me a present for my birthday.","At the present time we have no more money.","The headmaster presented the prizes to the winners."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"rest",
+  Chinesesense:["N 休息；睡眠","N 剩余部分；其余","V 休息；歇息"],
+  Englishsense:["a period of time when you relax or sleep","the part that is left","to relax after activity"],
+  example:["You look tired — you need a good rest.","I will finish the rest of the work tomorrow.","Let's rest for ten minutes."],
+  rank:["primary","junior","highschool","cet4","cet6"] },
+
+{ word:"save",
+  Chinesesense:["V 救；挽救","V 节省；节约","V 储蓄；存钱"],
+  Englishsense:["to make someone or something safe from danger","to use less of something so that it lasts longer","to keep money for the future"],
+  example:["The doctor saved the little boy's life.","Taking the subway saves time.","She saves half her pocket money every month."],
+  rank:["primary","junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"sign",
+  Chinesesense:["N 标志；牌子；记号","V 签名；签字","N 迹象；征兆"],
+  Englishsense:["a board or mark that gives information or a warning","to write your name on something","something that shows that something exists or may happen"],
+  example:["The sign says 'No Parking'.","Please sign your name at the bottom.","Dark clouds are a sign of rain."],
+  rank:["junior","highschool","cet4","cet6","IELTS"] },
+
+{ word:"turn",
+  Chinesesense:["V 转动；翻转","V 变成；变得","N 轮到；机会"],
+  Englishsense:["to move something so that it faces a different way","to become a different colour, state, etc.","the time when it is your chance to do something"],
+  example:["Turn the key to the right.","The leaves turn yellow in autumn.","It's your turn to read the text."],
+  rank:["primary","junior","highschool","cet4","cet6"] }
+];
+
+/* ---------------------------------------------------------------
+   2 · Entry shape
+   Every word is stored as five index-aligned lists:
+     POS[i] · Chinesesense[i] · Englishsense[i] · freq[i] · example[i]
+   Only `word` and `Englishsense` are required. A list that is missing or
+   shorter than the others simply leaves its column empty at that index —
+   never shifting the data that follows it.
+   --------------------------------------------------------------- */
+const toList = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
+
+/* The built-in bank predates the POS field: it kept the part of speech at the
+   head of each Chinese sense ("N 钢笔；笔"). Lift it out into its own list. */
+const LEGACY_POS = /^(N|V|VT|VI|Adj|Adv|Prep|Conj|Pron|Num|Art|Int|Aux|Det|Verb|Noun|Adjective|Adverb)\.?\s+(?=[一-鿿（(])/;
+
+function normalizeEntry(raw){
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const word = String(raw.word ?? "").trim();
+  if (!word) return null;
+
+  let Chinesesense = toList(raw.Chinesesense).map(s => String(s).trim());
+  let POS          = toList(raw.POS).map(s => String(s).trim());
+
+  if (!POS.filter(Boolean).length && Chinesesense.length){
+    const lifted = Chinesesense.map(s => {
+      const m = s.match(LEGACY_POS);
+      return m ? [m[1], s.slice(m[0].length)] : ["", s];
+    });
+    if (lifted.some(x => x[0])){
+      POS = lifted.map(x => x[0]);
+      Chinesesense = lifted.map(x => x[1]);
+    }
+  }
+
+  return {
+    word,
+    POS,
+    Chinesesense,
+    Englishsense: toList(raw.Englishsense).map(s => String(s).trim()),
+    freq:         toList(raw.freq).map(s => String(s).trim()),
+    example:      toList(raw.example).map(s => String(s).trim()),
+    rank:         toList(raw.rank).map(s => String(s).trim())
+  };
+}
+
+/* ---------------------------------------------------------------
+   3 · Rank labels
+   --------------------------------------------------------------- */
+const RANK_LABEL = {
+  primary:"小学", junior:"初中", highschool:"高中",
+  cet4:"四级", cet6:"六级", IELTS:"雅思", GRE:"GRE"
+};
+const RANK_ORDER = ["primary","junior","highschool","cet4","cet6","IELTS","GRE"];
+
+/* ---------------------------------------------------------------
+   4 · Storage
+   --------------------------------------------------------------- */
+const KEY = "xiaociben.v1";
+const blank = () => ({
+  words: DEFAULT_WORDS.map(normalizeEntry).filter(Boolean),
+  studied: [], correct: 0, total: 0,
+  wrong: [], favs: [], theme: "light"
+});
+
+let store;
+try {
+  const raw = localStorage.getItem(KEY);
+  store = raw ? Object.assign(blank(), JSON.parse(raw)) : blank();
+  if (!Array.isArray(store.words) || !store.words.length) store.words = blank().words;
+  else store.words = store.words.map(normalizeEntry).filter(Boolean);
+} catch (e) { store = blank(); }
+
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
+}
+
+/* ---------------------------------------------------------------
+   5 · Helpers
+   --------------------------------------------------------------- */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g,
+  c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+const byWord = w => store.words.find(x => x.word === w);
+const norm   = w => String(w || "").trim().toLowerCase();
+
+/** 中英义项按下标对齐（见词条契约），取成对的一组，只留中文非空的那几个。 */
+function sensePairs(w){
+  const cn = w.Chinesesense || [], en = w.Englishsense || [], out = [];
+  for (let i = 0; i < cn.length; i++){
+    const c = String(cn[i] ?? "").trim();
+    if (c) out.push({ cn: c, en: String(en[i] ?? "").trim() });
+  }
+  return out;
+}
+/** The English senses a word carries, for the reveal after a right answer. */
+const sensesOf = w => (w.Englishsense || []).map(s => String(s || "").trim()).filter(Boolean);
+/** 出题要中文当选项、英文当答案，缺任何一样都不够用。 */
+const canQuiz  = w => !!w && sensesOf(w).length > 0 && sensePairs(w).length > 0;
+
+/** 中文释义写成"钢笔；笔"这样的分号串：整条用于判重，拆开的义项用于防串味。 */
+const cnKey   = s => norm(s).replace(/[\s，,；;、。.（）()]/g, "");
+const cnParts = s => norm(s).replace(/[（(][^）)]*[）)]/g, "")
+                       .split(/[；;，,、。\/]+/).map(t => t.trim()).filter(Boolean);
+/** Compact gloss for a list row: Chinese when we have it, English otherwise. */
+function glossOf(w){
+  const cs = (w.Chinesesense || []).filter(Boolean);
+  return cs.length ? cs.join("　·　") : (sensesOf(w)[0] || "");
+}
+function pick(arr, n){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, n);
+}
+const accuracy = () => store.total ? Math.round(store.correct / store.total * 100) : 0;
+
+/* ---------------------------------------------------------------
+   6 · Toast / modal / settings sheet
+   --------------------------------------------------------------- */
+let toastTimer;
+function toast(msg, kind){
+  const el = $("#toast");
+  const icon = kind === "ok"
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : kind === "no"
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+    : "";
+  el.innerHTML = icon + `<span>${esc(msg)}</span>`;
+  el.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("on"), 1900);
+}
+
+function askConfirm({ title, body, confirmText = "确认", danger = false }){
+  return new Promise(resolve => {
+    const m = $("#modal");
+    m.innerHTML = `
+      <div class="modal-box">
+        <h3>${esc(title)}</h3>
+        <p>${esc(body)}</p>
+        <div class="modal-actions">
+          <button class="btn sm" data-no>取消</button>
+          <button class="btn sm ${danger ? "danger" : "primary"}" data-yes>${esc(confirmText)}</button>
+        </div>
+      </div>`;
+    const close = ans => { m.classList.remove("on"); m.innerHTML = ""; resolve(ans); };
+    m.classList.add("on");
+    $("[data-no]", m).onclick = () => close(false);
+    $("[data-yes]", m).onclick = () => close(true);
+    m.onclick = e => { if (e.target === m) close(false); };
+    document.addEventListener("keydown", function onKey(e){
+      if (e.key === "Escape"){ document.removeEventListener("keydown", onKey); close(false); }
+    });
+    $("[data-yes]", m).focus();
+  });
+}
+
+function openSheet(){ renderSheet(); $("#sheet").classList.add("on"); $("#scrim").classList.add("on"); }
+function closeSheet(){ $("#sheet").classList.remove("on"); $("#scrim").classList.remove("on"); }
+
+function renderSheet(){
+  const dark = document.documentElement.dataset.theme === "dark";
+  $("#sheet").innerHTML = `
+    <div class="sheet-head">
+      <h2>设置</h2>
+      <span class="eyebrow">Settings</span>
+    </div>
+    <button class="srow-set" data-act="theme">
+      <span class="lbl"><b>深色模式</b><span>${dark ? "已开启 · 夜自习" : "已关闭 · 日间"}</span></span>
+      <span class="switch ${dark ? "on" : ""}"></span>
+    </button>
+    <button class="srow-set danger" data-act="clear-stats">
+      <span class="lbl"><b>清空统计数据</b><span>已学 ${store.studied.length} 词 · 正确率 ${accuracy()}%</span></span>
+    </button>
+    <button class="srow-set danger" data-act="clear-wrong">
+      <span class="lbl"><b>清空错题本</b><span>${store.wrong.length} 个词条</span></span>
+    </button>
+    <button class="srow-set danger" data-act="clear-favs">
+      <span class="lbl"><b>清空收藏夹</b><span>${store.favs.length} 个词条</span></span>
+    </button>
+    <button class="srow-set" data-act="contact">
+      <span class="lbl"><b>联系我们</b><span>jiangyanting@mail.bnu.edu.cn</span></span>
+      <span class="chev">→</span>
+    </button>`;
+
+  $$("#sheet [data-act]").forEach(btn => {
+    btn.onclick = async () => {
+      const act = btn.dataset.act;
+      if (act === "theme"){
+        toggleTheme();
+        renderSheet();
+        return;
+      }
+      if (act === "contact"){ closeSheet(); go("contact"); return; }
+      const jobs = {
+        "clear-stats": { title:"清空统计数据？", body:"累计已学词数和答题正确率都会归零。词库、错题本和收藏夹不受影响。",
+                         run(){ store.studied = []; store.correct = 0; store.total = 0; } },
+        "clear-wrong": { title:"清空错题本？", body:`${store.wrong.length} 个词条会全部移出。清空后无法恢复。`,
+                         run(){ store.wrong = []; } },
+        "clear-favs":  { title:"清空收藏夹？", body:`${store.favs.length} 个词条会全部移出。清空后无法恢复。`,
+                         run(){ store.favs = []; } }
+      }[act];
+      if (!jobs) return;
+      const ok = await askConfirm({ ...jobs, confirmText:"清空", danger:true });
+      if (!ok) return;
+      jobs.run(); save(); closeSheet();
+      toast("已清空", "ok");
+      if (route.name !== "quiz") render();
+    };
+  });
+}
+
+function toggleTheme(){
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  store.theme = next; save();
+}
+
+/* ---------------------------------------------------------------
+   7 · Shared components
+   --------------------------------------------------------------- */
+function grid4(word, u, extra=""){
+  return `<div class="g4 ${extra}" style="--u:${u}">
+            <span class="g4-word">${esc(word)}</span>
+          </div>`;
+}
+
+function statsChip(){
+  return `<div class="stats" title="累计已学习单词数 · 答题正确率">
+    <span class="stat"><b>${store.studied.length}</b><i>已学词</i></span>
+    <span class="stat-sep"></span>
+    <span class="stat"><b>${accuracy()}%</b><i>正确率</i></span>
+  </div>`;
+}
+
+function topbar({ back = null, title = "" } = {}){
+  const left = back
+    ? `<button class="back" data-back>${ICON.back}<span>${esc(back)}</span></button>`
+    : `<div class="brand">
+         <span class="brand-name">小词本</span>
+         <span class="brand-sub">Wordbook · 英语单词练习本</span>
+       </div>`;
+  $("#topbar").innerHTML = left + (title ? `<span class="eyebrow" style="margin-left:12px">${esc(title)}</span>` : "") + statsChip();
+  const b = $("[data-back]", $("#topbar"));
+  if (b) b.onclick = () => history.length > 1 ? history.back() : go("home");
+}
+
+const ICON = {
+  back:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`,
+  arrow:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  star:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z"/></svg>`,
+  check:`<svg class="pen-mark" viewBox="0 0 24 24"><path d="M5 13.2l4.3 4.3L19 6.6"/></svg>`,
+  cross:`<svg class="pen-mark" viewBox="0 0 24 24"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>`,
+  tick:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  bang:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="13"/><circle cx="12" cy="17.5" r="1.1" fill="currentColor" stroke="none"/></svg>`
+};
+
+/** The 释义对照 block. Each row is one index: POS · 中文 · 英文 · freq · 例句. */
+function senseTable(w){
+  const L = k => w[k] || [];
+  const n = Math.max(L("POS").length, L("Chinesesense").length, L("Englishsense").length,
+                     L("freq").length, L("example").length);
+  const numbered = n > 1;
+  let rows = "";
+  for (let i = 0; i < n; i++){
+    const pos = L("POS")[i], cs = L("Chinesesense")[i], es = L("Englishsense")[i];
+    const fq = L("freq")[i], ex = L("example")[i];
+    rows += `<div class="srow${numbered ? " multi" : ""}">
+      ${numbered ? `<span class="sidx">${i + 1}</span>` : ""}
+      <div class="sbody${cs && es ? "" : " one"}">
+        ${(pos || fq) ? `<div class="shead">
+          ${pos ? `<span class="poschip">${esc(pos)}</span>` : ""}
+          ${fq ? `<span class="freq">单词在美国当代语料库里的词频排序：<b>${esc(fq)}</b></span>` : ""}
+        </div>` : ""}
+        ${cs ? `<div class="sc">${esc(cs)}</div>` : ""}
+        ${es ? `<div class="se">${esc(es)}</div>` : ""}
+        ${ex ? `<div class="sx">${esc(ex)}</div>` : ""}
+      </div>
+    </div>`;
+  }
+  const ranks = (w.rank || []).slice().sort((a,b) => RANK_ORDER.indexOf(a) - RANK_ORDER.indexOf(b));
+  const rankHTML = ranks.length ? `<div class="rank-row">
+      <span class="rank-label">等级</span>
+      ${ranks.map(r => `<span class="tag${["primary","junior"].includes(r) ? " hot" : ""}">${esc(RANK_LABEL[r] || r)}</span>`).join("")}
+    </div>` : "";
+  return `<div class="sense-table">${rows}</div>${rankHTML}`;
+}
+
+function wordDetail(w, { showExample = true } = {}){
+  return `<div class="detail-head">
+      <div>
+        <div class="detail-title">${esc(w.word)}</div>
+      </div>
+      <span class="eyebrow">释义对照</span>
+    </div>
+    ${senseTable(showExample ? w : { ...w, example: [] })}`;
+}
+
+/* ---------------------------------------------------------------
+   8 · Router
+   --------------------------------------------------------------- */
+const route = { name:"home", params:{} };
+
+function go(name, params = {}){
+  route.name = name; route.params = params || {};
+  try { history.pushState({ name, params }, "", "#" + name); } catch (e) {}
+  render();
+  window.scrollTo({ top:0, behavior:"instant" in window ? "instant" : "auto" });
+}
+
+window.addEventListener("popstate", e => {
+  const s = e.state || { name:"home", params:{} };
+  route.name = s.name; route.params = s.params || {};
+  render();
+});
+
+function render(){
+  const v = $("#view");
+  const inQuiz = route.name === "quiz" && quiz.state === "run";
+  $("#fab").classList.toggle("hide", inQuiz);
+  if (route.name !== "home") closeSheet();
+  ({ home:viewHome, words:viewWords, wrong:viewWrong, favs:viewFavs,
+     quiz:viewQuiz, contact:viewContact }[route.name] || viewHome)(v);
+}
+
+/* ---------------------------------------------------------------
+   9 · Home
+   --------------------------------------------------------------- */
+let heroTimer = null;
+function viewHome(v){
+  topbar();
+  const demo = ["pen","light","spring","matter","interest"].filter(byWord);
+  const first = demo[Math.floor(Math.random() * demo.length)] || "pen";
+
+  v.innerHTML = `
+    <section class="hero" role="button" tabindex="0" data-go="quiz">
+      <div class="hero-top">
+        <h2>背单词小练习</h2>
+        <span class="eyebrow">Practice</span>
+        <span class="hero-arrow">${ICON.arrow}</span>
+      </div>
+      <div class="hero-stage" id="heroStage">${grid4(first, "13px")}</div>
+      <p class="hero-note">从词库里随机抽词，四个中文释义里选出对得上的那一条。答错了自动进错题本，答对了就移出去。</p>
+    </section>
+
+    <div class="cards">
+      <button class="card" data-go="words">
+        <div class="card-title-row">
+          <h3><span class="tick g"></span>词库管理</h3>
+        </div>
+        <div class="card-count">${store.words.length}<small>词条</small></div>
+        <p>导入 JSON 单词表，随时替换或补充。</p>
+      </button>
+      <button class="card" data-go="wrong">
+        <div class="card-title-row">
+          <h3><span class="tick r"></span>错题本</h3>
+        </div>
+        <div class="card-count">${store.wrong.length}<small>待复习</small></div>
+        <p>${store.wrong.length ? "再练一遍，答对就移出。" : "还没有错题。练一组试试。"}</p>
+      </button>
+      <button class="card" data-go="favs">
+        <div class="card-title-row">
+          <h3><span class="tick y"></span>收藏夹</h3>
+        </div>
+        <div class="card-count">${store.favs.length}<small>词条</small></div>
+        <p>${store.favs.length ? "点开词条，回看完整释义。" : "练单词时点「收藏」收进来。"}</p>
+      </button>
+    </div>`;
+
+  $$("[data-go]", v).forEach(el => {
+    const act = () => go(el.dataset.go);
+    el.onclick = act;
+    el.onkeydown = e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); act(); } };
+  });
+
+  // Ambient: the practice lines keep writing new words.
+  clearInterval(heroTimer);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && demo.length > 1){
+    let i = demo.indexOf(first);
+    heroTimer = setInterval(() => {
+      const stage = $("#heroStage");
+      if (!stage || route.name !== "home"){ clearInterval(heroTimer); return; }
+      i = (i + 1) % demo.length;
+      stage.innerHTML = grid4(demo[i], "13px", "swap");
+    }, 3400);
+  }
+}
+
+/* ---------------------------------------------------------------
+   10 · Quiz
+   --------------------------------------------------------------- */
+let quiz = { state:"setup", mode:"bank", size:10, queue:[], idx:0, correct:0, answered:false, added:0, cleared:0 };
+
+function availablePool(mode){
+  if (mode === "wrong") return store.wrong.map(byWord).filter(canQuiz);
+  return store.words.filter(canQuiz);
+}
+
+function viewQuiz(v){
+  clearInterval(heroTimer);
+  if (quiz.state === "setup" || !quiz.queue.length) { quiz.state = "setup"; return quizSetup(v); }
+  if (quiz.state === "run") return quizRun(v);
+  return quizDone(v);
+}
+
+function quizSetup(v){
+  const mode = quiz.mode;
+  topbar({ back:"返回", title: mode === "wrong" ? "错题重练" : "背单词小练习" });
+  const pool = availablePool(mode);
+  const n = pool.length;
+
+  if (n < 2){
+    v.innerHTML = `<div class="view-head"><h1>可练的词不够</h1></div>
+      <div class="empty"><b>${mode === "wrong" ? "错题本里不足两个词" : "词库里不足两个词"}</b>
+        ${mode === "wrong"
+          ? "先做一组小练习，答错的词会自动收进错题本。"
+          : "每个词条要有 word、Chinesesense 和 Englishsense 才能出题，四个选项至少需要两个词条。先到「词库管理」导入一份 JSON 单词表。"}
+      </div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn primary" data-go="${mode === "wrong" ? "quiz" : "words"}">${mode === "wrong" ? "去练一组" : "去导入词库"}</button>
+      </div>`;
+    bindGo(v);
+    return;
+  }
+
+  const sizes = [5,10,20,30,50];
+  const fit = sizes.filter(s => s <= n);
+  const def = fit.includes(10) ? 10 : (fit[fit.length - 1] || n);
+  quiz.size = Math.min(def, n);
+
+  v.innerHTML = `
+    <div class="view-head">
+      <span class="eyebrow">${mode === "wrong" ? "Review" : "Practice"}</span>
+      <h1>${mode === "wrong" ? "错题重练" : "背单词小练习"}</h1>
+      <p>${mode === "wrong"
+        ? "只练错题本里的词。答对了，它就从错题本里移出去。"
+        : "每题给出一个单词，四个选项都是中文释义，选出与它对得上的那一条。答对后显示这个词的英文释义。"}</p>
+    </div>
+    <div class="panel setup">
+      <div class="field">
+        <label for="sizeSel">这一组背多少个</label>
+        <select id="sizeSel">
+          ${sizes.map(s => `<option value="${s}" ${s === quiz.size ? "selected" : ""} ${s > n ? "disabled" : ""}>${s} 个${s > n ? "（不足）" : ""}</option>`).join("")}
+        </select>
+        <p class="hint">当前可抽取 ${n} 个词条${mode === "wrong" ? "（错题本）" : "（词库）"}。</p>
+      </div>
+      <div class="btn-row" style="margin-top:22px">
+        <button class="btn primary" id="start">开始练习</button>
+      </div>
+    </div>`;
+
+  $("#sizeSel").onchange = e => { quiz.size = Math.min(+e.target.value, n); };
+  $("#start").onclick = () => startQuiz(mode, quiz.size);
+}
+
+function startQuiz(mode, size){
+  const pool = pick(availablePool(mode), Math.min(size, availablePool(mode).length));
+  if (!pool.length){ toast("没有可用的词条", "no"); return; }
+  quiz = { state:"run", mode, size:pool.length, queue:pool, idx:0, correct:0, answered:false, added:0, cleared:0 };
+  go("quiz");
+}
+
+/** Four options, each one 中文释义 of a different word. The correct option is a
+    sense of the target word, picked at random; every distractor comes from
+    another word, and we skip any whose 中文 overlaps the target's — glosses are
+    short, so without that "完成；达成" would sit next to "完成；结束" and both
+    would look right. The 英文 that belongs to the correct sense rides along, for
+    the reveal. */
+function buildOptions(target){
+  const own = sensePairs(target);
+  const hit = own[Math.floor(Math.random() * own.length)] || { cn:"", en:"" };
+  const opts = [{ word: target.word, cn: hit.cn, en: hit.en }];
+
+  const taken = new Set([norm(target.word)]);      // one option per word
+  const said  = new Set([cnKey(hit.cn)]);          // no two options may read alike
+  const parts = new Set(cnParts(hit.cn));          // nor share a meaning with the target
+
+  const others = pick(store.words, store.words.length);
+  for (const strict of [true, false]){             // prefer clean distractors,
+    for (const o of others){                       // then settle for distinct ones
+      if (opts.length >= 4) break;
+      if (taken.has(norm(o.word))) continue;
+      const pair = pick(sensePairs(o).filter(p =>
+        !said.has(cnKey(p.cn)) && (!strict || !cnParts(p.cn).some(t => parts.has(t)))), 1)[0];
+      if (!pair) continue;
+      taken.add(norm(o.word));
+      said.add(cnKey(pair.cn));
+      cnParts(pair.cn).forEach(t => parts.add(t));
+      opts.push({ word: o.word, cn: pair.cn, en: pair.en });
+    }
+    if (opts.length >= 4) break;
+  }
+  return pick(opts, opts.length);
+}
+
+function quizRun(v){
+  const w = quiz.queue[quiz.idx];
+  if (!w){ quiz.state = "done"; return quizDone(v); }
+  topbar({ back:"退出", title:"" });
+
+  const opts = buildOptions(w);
+  quiz.opts = opts;
+  const letters = ["A","B","C","D"];
+  const isFav = store.favs.includes(w.word);
+
+  v.innerHTML = `
+    <div class="qhead">
+      <span class="qcount"><b>${quiz.idx + 1}</b> / ${quiz.size}</span>
+      ${quiz.mode === "wrong" ? `<span class="tag hot">错题重练</span>` : ""}
+    </div>
+    <div class="progress"><i style="width:${(quiz.idx / quiz.size * 100).toFixed(1)}%"></i></div>
+
+    <section class="word-stage">
+      ${grid4(w.word, "clamp(19px,5.4vw,27px)")}
+      <div class="stage-tools">
+        <button class="fav ${isFav ? "on" : ""}" id="favBtn">
+          ${ICON.star}<span>${isFav ? "已收藏" : "收藏"}</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="opts" id="opts">
+      ${opts.map((o, i) => `
+        <button class="opt" data-i="${i}" data-w="${esc(o.word)}">
+          <span class="mk">${letters[i]}</span>
+          <span class="opt-body"><span class="opt-text">${esc(o.cn)}</span></span>
+        </button>`).join("")}
+    </div>
+    <div id="after"></div>`;
+
+  const favBtn = $("#favBtn");
+  favBtn.onclick = () => {
+    const i = store.favs.indexOf(w.word);
+    if (i >= 0) { store.favs.splice(i, 1); toast("已取消收藏"); }
+    else { store.favs.push(w.word); toast("已加入收藏夹", "ok"); }
+    save();
+    const on = store.favs.includes(w.word);
+    favBtn.classList.toggle("on", on);
+    $("span", favBtn).textContent = on ? "已收藏" : "收藏";
+  };
+
+  $$(".opt", v).forEach(btn => { btn.onclick = () => answer(btn); });
+  quiz.answered = false;
+  quiz.keyHandler = e => {
+    const k = e.key.toUpperCase();
+    const i = letters.indexOf(k);
+    if (i >= 0 && i < opts.length && !quiz.answered) $$(".opt", v)[i].click();
+    if (e.key === "Enter" && quiz.answered) { const n = $("#next"); if (n) n.click(); }
+  };
+  document.addEventListener("keydown", quiz.keyHandler);
+}
+
+function answer(btn){
+  if (quiz.answered) return;
+  quiz.answered = true;
+  const w = quiz.queue[quiz.idx];
+  const chosen = btn.dataset.w;
+  const right = norm(chosen) === norm(w.word);
+
+  $$(".opt").forEach(o => {
+    o.disabled = true;
+    const isCorrect = norm(o.dataset.w) === norm(w.word);
+    if (isCorrect){
+      o.classList.add("correct");
+      $(".mk", o).innerHTML = ICON.check;
+    } else if (o === btn){
+      o.classList.add("wrong");
+      $(".mk", o).innerHTML = ICON.cross;
+    } else {
+      o.classList.add("faded");
+    }
+  });
+  document.removeEventListener("keydown", quiz.keyHandler);
+
+  // stats
+  store.total++;
+  if (right) store.correct++;
+  if (!store.studied.includes(w.word)) store.studied.push(w.word);
+
+  if (right){
+    quiz.correct++;
+    // spec 3: a correct answer clears the word from the mistake book
+    const wi = store.wrong.indexOf(w.word);
+    if (wi >= 0){ store.wrong.splice(wi, 1); quiz.cleared++; }
+    save(); syncChip();
+    revealAnswer(w);
+    return;
+  }
+
+  // wrong → into the mistake book, and show the full entry
+  if (!store.wrong.includes(w.word)){ store.wrong.push(w.word); quiz.added++; }
+  save(); syncChip();
+
+  $("#after").innerHTML = `
+    <div class="panel result-panel">
+      <div class="verdict bad">${ICON.bang}<span>这个答案不对。正确释义如下：</span></div>
+      ${wordDetail(w)}
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn primary" id="next">下一个</button>
+      </div>
+    </div>`;
+  $("#next").onclick = next;
+  $("#next").focus({ preventScroll:true });
+  setTimeout(() => $("#after").scrollIntoView({ behavior:"smooth", block:"nearest" }), 60);
+}
+
+/** A right answer earns the 英文 definition of the meaning just recognised —
+    the 中文 you matched and the 英文 it actually stands for, as one pair. No
+    auto-advance: read it, then say so. */
+function revealAnswer(w){
+  const hit = (quiz.opts || []).find(o => norm(o.word) === norm(w.word)) || {};
+  const en  = hit.en || sensesOf(w)[0] || "";
+
+  $("#after").innerHTML = `
+    <div class="panel result-panel">
+      <div class="verdict good">${ICON.tick}<span>答对了。</span></div>
+      <div class="pair">
+        ${hit.cn ? `<div class="pair-cn">${esc(hit.cn)}</div>` : ""}
+        ${en ? `<div class="pair-en">${esc(en)}</div>`
+             : `<div class="hint">这个词条还没有英文释义。</div>`}
+      </div>
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn primary" id="next">确认</button>
+      </div>
+    </div>`;
+  $("#next").onclick = next;
+  $("#next").focus({ preventScroll:true });
+  setTimeout(() => $("#after").scrollIntoView({ behavior:"smooth", block:"nearest" }), 60);
+}
+
+function next(){
+  document.removeEventListener("keydown", quiz.keyHandler);
+  quiz.idx++;
+  quiz.answered = false;
+  if (quiz.idx >= quiz.queue.length){ quiz.state = "done"; }
+  render();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+function syncChip(){
+  const chip = $(".stats");
+  if (chip) chip.outerHTML = statsChip();
+}
+
+function quizDone(v){
+  topbar({ back:"返回", title:"" });
+  clearInterval(heroTimer);
+  const pct = quiz.size ? Math.round(quiz.correct / quiz.size * 100) : 0;
+  const wrongLeft = store.wrong.length;
+
+  v.innerHTML = `
+    <div class="view-head">
+      <span class="eyebrow">Result</span>
+      <h1>这组完成了</h1>
+    </div>
+    <div class="panel">
+      <div class="score">
+        <span class="score-num">${quiz.correct}</span>
+        <span class="score-of">/ ${quiz.size} 题答对</span>
+      </div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <p class="hint">本组正确率 ${pct}%　·　累计正确率 ${accuracy()}%</p>
+
+      ${quiz.added ? `<p class="hint" style="color:var(--red)">有 ${quiz.added} 个词进了错题本。</p>` : ""}
+      ${quiz.cleared ? `<p class="hint" style="color:var(--green)">有 ${quiz.cleared} 个词答对了，已从错题本移出。</p>` : ""}
+      ${quiz.mode === "wrong" && wrongLeft === 0 ? `<p class="hint" style="color:var(--green)">错题本清空了。</p>` : ""}
+
+      <div class="btn-row" style="margin-top:20px">
+        <button class="btn primary" id="again">再来一组</button>
+        ${wrongLeft ? `<button class="btn" id="toWrong">去错题本（${wrongLeft}）</button>` : ""}
+        <button class="btn" id="home">回首页</button>
+      </div>
+    </div>`;
+
+  $("#again").onclick = () => { quiz.state = "setup"; go("quiz"); };
+  const tw = $("#toWrong"); if (tw) tw.onclick = () => go("wrong");
+  $("#home").onclick = () => go("home");
+}
+
+/* ---------------------------------------------------------------
+   11 · 词库管理
+   --------------------------------------------------------------- */
+function viewWords(v){
+  topbar({ back:"返回" });
+  const q = (route.params.q || "").toLowerCase();
+  const hay = w => [w.word, ...(w.POS||[]), ...(w.Chinesesense||[]),
+                    ...(w.Englishsense||[]), ...(w.freq||[])].join(" ").toLowerCase();
+  const list = store.words.filter(w => !q || hay(w).includes(q));
+  const shown = list.slice(0, 300);
+
+  v.innerHTML = `
+    <div class="view-head">
+      <span class="eyebrow">Word bank</span>
+      <h1>词库管理</h1>
+      <p>导入 JSON 单词表。每条至少要有一个 <code>word</code> 和一组 <code>Englishsense</code>。</p>
+    </div>
+
+    <div class="panel">
+      <div class="btn-row">
+        <button class="btn" id="pick">选择 JSON 文件</button>
+        <button class="btn" id="export">导出词库</button>
+        <button class="btn danger" id="reset">恢复默认 50 词</button>
+      </div>
+      <input type="file" id="file" accept=".json,application/json" hidden>
+
+      <details class="adv" style="margin-top:16px">
+        <summary>或者直接粘贴 JSON</summary>
+        <div class="io">
+          <textarea id="paste" placeholder='[
+  {"word": "accomplish", "POS": ["VERB 动词"], "Chinesesense": ["完成；达成；"], "Englishsense": ["If you accomplish something, you succeed in doing it."], "freq": "2366"},
+  {"word": "accomplished", "POS": ["ADJ-GRADED 能被表示程度的副词或介词词组修饰的形容词"], "Chinesesense": ["熟练的;才华高的;有造诣的；"], "Englishsense": ["If someone is accomplished at something, they are very good at it."], "freq": "9130"}
+]'></textarea>
+          <div class="btn-row"><button class="btn sm primary" id="pasteGo">导入这段 JSON</button></div>
+        </div>
+      </details>
+
+      <p class="hint">
+        必填 <code>word</code> 和 <code>Englishsense</code>；<code>POS</code>、<code>Chinesesense</code>、<code>freq</code> 可以省略。
+        不过要进「背单词小练习」，<code>Chinesesense</code> 和 <code>Englishsense</code> 得同时有——中文当选项，英文当答案。
+        <code>POS</code>、<code>Chinesesense</code>、<code>Englishsense</code> 都是列表，下标相同的元素说的是同一个义项——
+        第 2 个 <code>POS</code> 配第 2 个 <code>Chinesesense</code> 和第 2 个 <code>Englishsense</code>，<code>freq</code> 同理。
+        同一个词再次导入会覆盖旧词条。
+      </p>
+    </div>
+
+    <div class="count-note">共 ${store.words.length} 个词条${q ? `　·　匹配 ${list.length} 条` : ""}</div>
+    <div class="list-tools">
+      <input class="search" id="q" placeholder="搜索单词、中文或英文释义" value="${esc(route.params.q || "")}">
+    </div>
+    <div class="wlist">
+      ${shown.length ? shown.map(w => `
+        <button class="witem" data-w="${esc(w.word)}">
+          <span class="witem-word">${esc(w.word)}</span>
+          <span class="witem-def">${esc(glossOf(w))}</span>
+        </button>`).join("") : `<div class="empty" style="border:0">没有匹配的词条。</div>`}
+    </div>
+    ${list.length > shown.length ? `<p class="hint">只显示前 ${shown.length} 条，用搜索缩小范围。</p>` : ""}
+    <div id="wDetail" style="margin-top:16px"></div>`;
+
+  $("#q").oninput = e => {
+    route.params.q = e.target.value;
+    clearTimeout(v._t);
+    v._t = setTimeout(() => {
+      const sel = e.target.selectionStart;
+      render();
+      const box = $("#q");
+      if (box){ box.focus(); box.setSelectionRange(sel, sel); }
+    }, 220);
+  };
+
+  $$(".witem", v).forEach(b => b.onclick = () => {
+    const w = byWord(b.dataset.w);
+    const box = $("#wDetail");
+    box.innerHTML = `<div class="panel">${wordDetail(w)}
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn sm" id="rm">从词库删除</button>
+      </div></div>`;
+    $("#rm").onclick = async () => {
+      const ok = await askConfirm({
+        title:`删除 ${w.word}？`,
+        body:"这个词条会从词库中移除。已经收集的错题和收藏不受影响。",
+        confirmText:"删除", danger:true
+      });
+      if (!ok) return;
+      store.words = store.words.filter(x => x.word !== w.word);
+      save(); toast("已删除", "ok"); render();
+    };
+    box.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  });
+
+  $("#pick").onclick = () => $("#file").click();
+  $("#file").onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => importJSON(String(r.result));
+    r.readAsText(f, "utf-8");
+    e.target.value = "";
+  };
+  $("#pasteGo").onclick = () => {
+    const t = $("#paste").value.trim();
+    if (!t){ toast("先粘贴一段 JSON", "no"); return; }
+    importJSON(t);
+  };
+  $("#export").onclick = () => {
+    const blob = new Blob([JSON.stringify(store.words, null, 2)], { type:"application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "wordbank.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+  $("#reset").onclick = async () => {
+    const ok = await askConfirm({
+      title:"恢复默认词库？",
+      body:"当前词库会被内置的 50 个词条替换。错题本和收藏夹保持不变。",
+      confirmText:"恢复", danger:true
+    });
+    if (!ok) return;
+    store.words = blank().words; save(); toast("已恢复默认词库", "ok"); go("words");
+  };
+}
+
+function importJSON(text){
+  let data;
+  try { data = JSON.parse(text); }
+  catch (e){ toast("JSON 格式有误，无法解析", "no"); return; }
+  const items = Array.isArray(data) ? data : [data];
+
+  let added = 0, updated = 0, skipped = 0;
+  for (const item of items){
+    const w = normalizeEntry(item);
+    // `word` and `Englishsense` are the contract; everything else is optional.
+    if (!w || !w.Englishsense.filter(Boolean).length){ skipped++; continue; }
+    const i = store.words.findIndex(x => norm(x.word) === norm(w.word));
+    if (i >= 0){ store.words[i] = w; updated++; }
+    else { store.words.push(w); added++; }
+  }
+  save();
+  const parts = [];
+  if (added) parts.push(`新增 ${added} 条`);
+  if (updated) parts.push(`更新 ${updated} 条`);
+  if (skipped) parts.push(`跳过 ${skipped} 条（缺 word 或 Englishsense）`);
+  toast(parts.length ? parts.join("，") : "没有可导入的词条", (added || updated) ? "ok" : "no");
+  if (added || updated) go("words");
+}
+
+/* ---------------------------------------------------------------
+   12 · 错题本 / 收藏夹
+   --------------------------------------------------------------- */
+function listView(v, { mode }){
+  const isWrong = mode === "wrong";
+  const words = (isWrong ? store.wrong : store.favs).map(byWord).filter(Boolean);
+  topbar({ back:"返回" });
+
+  v.innerHTML = `
+    <div class="view-head">
+      <span class="eyebrow">${isWrong ? "Mistakes" : "Favourites"}</span>
+      <h1>${isWrong ? "错题本" : "收藏夹"}</h1>
+      <p>${isWrong
+        ? "答错的词都会落到这里。点开看完整词条，再练一遍，答对就自动移出。"
+        : "练单词时点过「收藏」的词条。点开看完整词条：词性、中文释义、英文释义、词频和例句。"}</p>
+    </div>
+
+    ${words.length ? `
+      <div class="btn-row" style="margin-bottom:16px">
+        ${isWrong ? `<button class="btn primary" id="retry">再练一遍（${words.length}）</button>` : ""}
+        <button class="btn danger" id="clear">${isWrong ? "全部移出" : "全部取消收藏"}</button>
+      </div>
+      <div class="wlist">
+        ${words.map(w => `
+          <button class="witem" data-w="${esc(w.word)}">
+            <span class="witem-word">${esc(w.word)}</span>
+            <span class="witem-def">${esc(glossOf(w))}</span>
+          </button>`).join("")}
+      </div>
+      <div id="detail" style="margin-top:16px"></div>`
+    : `<div class="empty">
+         <b>${isWrong ? "错题本是空的" : "收藏夹是空的"}</b>
+         ${isWrong ? "做一组小练习，答错的词会自动收进来。" : "练单词的时候，点一下「收藏」就会收进来。"}
+       </div>
+       <div class="btn-row" style="margin-top:16px">
+         <button class="btn primary" data-go="quiz">去练一组</button>
+       </div>`}`;
+
+  const rt = $("#retry");
+  if (rt) rt.onclick = () => { quiz.mode = "wrong"; quiz.state = "setup"; go("quiz"); };
+
+  const cl = $("#clear");
+  if (cl) cl.onclick = async () => {
+    const ok = await askConfirm({
+      title: isWrong ? "清空错题本？" : "清空收藏夹？",
+      body: `${words.length} 个词条会全部移出。清空后无法恢复。`,
+      confirmText:"清空", danger:true
+    });
+    if (!ok) return;
+    if (isWrong) store.wrong = []; else store.favs = [];
+    save(); toast("已清空", "ok"); render();
+  };
+
+  $$(".witem", v).forEach(b => b.onclick = () => {
+    const w = byWord(b.dataset.w);
+    const box = $("#detail");
+    if (box.dataset.open === w.word && box.innerHTML){
+      box.innerHTML = ""; box.dataset.open = ""; return;
+    }
+    box.dataset.open = w.word;
+    box.innerHTML = `<div class="panel">${wordDetail(w)}
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn sm ${isWrong ? "" : "danger"}" id="rm">${isWrong ? "移出错题本" : "取消收藏"}</button>
+      </div></div>`;
+    $("#rm").onclick = () => {
+      if (isWrong) store.wrong = store.wrong.filter(x => x !== w.word);
+      else store.favs = store.favs.filter(x => x !== w.word);
+      save(); toast(isWrong ? "已移出错题本" : "已取消收藏", "ok"); render();
+    };
+    box.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  });
+}
+const viewWrong = v => listView(v, { mode:"wrong" });
+const viewFavs  = v => listView(v, { mode:"favs"  });
+
+/* ---------------------------------------------------------------
+   13 · 联系我们
+   --------------------------------------------------------------- */
+function viewContact(v){
+  topbar({ back:"返回" });
+  v.innerHTML = `
+    <div class="view-head" style="padding-bottom:6px">
+      <span class="eyebrow">Contact</span>
+    </div>
+    <h1 class="greet">欢迎垂询</h1>
+
+    <div class="panel">
+      <span class="eyebrow">邮箱</span>
+      <a class="contact-mail" href="mailto:123456@163.com">123456@163.com</a>
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn primary" id="copy">复制邮箱</button>
+        <a class="btn" href="mailto:123456@163.com">写邮件</a>
+      </div>
+    </div>
+
+    <div class="rule-block">
+      <dl>
+        <div>
+          <dt>可以问什么</dt>
+          <dd>词库导入出问题、想要某个学段的词表、发现释义有误、对练习方式有建议——都可以直接写信。</dd>
+        </div>
+        <div>
+          <dt>回信时间</dt>
+          <dd>我们通常在两个工作日内回复。</dd>
+        </div>
+      </dl>
+    </div>`;
+
+  $("#copy").onclick = async () => {
+    const text = "123456@163.com";
+    try {
+      await navigator.clipboard.writeText(text);
+      toast("邮箱已复制", "ok");
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); toast("邮箱已复制", "ok"); }
+      catch (_) { toast("复制失败，请手动选中邮箱", "no"); }
+      ta.remove();
+    }
+  };
+}
+
+/* ---------------------------------------------------------------
+   14 · Wiring
+   --------------------------------------------------------------- */
+function bindGo(root){
+  $$("[data-go]", root).forEach(el => el.onclick = () => go(el.dataset.go));
+}
+
+$("#fab").onclick = () => {
+  $("#sheet").classList.contains("on") ? closeSheet() : openSheet();
+};
+$("#scrim").onclick = closeSheet;
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeSheet();
+});
+
+// theme first paint
+document.documentElement.dataset.theme = store.theme === "dark" ? "dark" : "light";
+
+// initial route honouring the hash
+(function init(){
+  const h = (location.hash || "").replace("#", "");
+  if (["home","words","wrong","favs","quiz","contact"].includes(h)) route.name = h;
+  try { history.replaceState({ name:route.name, params:{} }, "", "#" + route.name); } catch (e) {}
+  render();
+})();
+</script>
+</body>
+</html>
