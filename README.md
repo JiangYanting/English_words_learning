@@ -12,11 +12,12 @@
 
 
 # 各模块的展示
+ ![背单词界面1](https://github.com/JiangYanting/English_words_learning/blob/main/3.png)
 
- ![背单词界面](https://github.com/JiangYanting/English_words_learning/blob/main/1.png)
+ ![背单词界面2](https://github.com/JiangYanting/English_words_learning/blob/main/4.png)
 
  ![词库查看单词界面](https://github.com/JiangYanting/English_words_learning/blob/main/2.png)、
 
- ![背单词界面2](https://github.com/JiangYanting/English_words_learning/blob/main/3.png)
+
 
  
